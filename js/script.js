@@ -11,7 +11,7 @@
   const AUTO_HIDE_MS = 3400;    // tiempo hasta la transición automática
   const ZOOM_DURATION = 3400;   // duración del avance hacia la puerta
   const ZOOM_TARGET = isTouch ? 1.16 : 1.35;  // cuánto se acerca la foto (menos en móvil)
-  const DOOR_OPEN_MS = 950;     // duración del giro de apertura de las puertas
+  const DOOR_OPEN_MS = 1900;    // duración del giro de apertura de las puertas, lento y suave
 
   let hidden = false;
   let rafId = null;
@@ -57,14 +57,15 @@
     if (rafId) cancelAnimationFrame(rafId);
 
     splash.style.pointerEvents = "none";
-    splash.classList.add("splash-hide");   // funde el texto y el velo oscuro
-    doors.classList.add("doors-open");     // las dos hojas giran sobre su bisagra y se abren
+    splash.classList.add("splash-hide");     // funde el texto y el velo oscuro, y enciende el resplandor cálido
+    doors.classList.add("doors-open");       // las dos hojas giran despacio sobre su bisagra y se abren
+    document.body.classList.add("entering"); // la página se acomoda suavemente al entrar
     document.body.style.overflow = "";
 
     // Avisa al resto de la página para que se revele mientras las puertas terminan de abrirse
     window.dispatchEvent(new CustomEvent("splash:done"));
 
-    setTimeout(() => splash.remove(), reduceMotion ? 50 : DOOR_OPEN_MS + 80);
+    setTimeout(() => splash.remove(), reduceMotion ? 50 : DOOR_OPEN_MS + 150);
   }
 
   // Saltar intro con click o cualquier tecla
@@ -115,9 +116,10 @@
     gsap.to(els, {
       opacity: 1,
       y: 0,
-      duration: 0.9,
-      ease: "power3.out",
-      stagger: 0.1,
+      duration: 1.4,
+      ease: "power2.out",
+      stagger: 0.16,
+      delay: 0.15,
     });
   }
   window.addEventListener("splash:done", revealHero, { once: true });

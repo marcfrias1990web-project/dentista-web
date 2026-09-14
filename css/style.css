@@ -117,12 +117,38 @@ section h2 { font-size: clamp(1.8rem, 3.2vw, 2.6rem); margin-bottom: 18px; }
   cursor: pointer;
 }
 
+/* Resplandor cálido que se filtra por el hueco al abrirse las puertas */
+.splash-glow {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(circle at center,
+    rgba(255, 214, 158, 0.95) 0%,
+    rgba(255, 189, 122, 0.55) 20%,
+    rgba(255, 170, 95, 0.18) 40%,
+    rgba(255, 170, 95, 0) 62%);
+}
+
+#splash.splash-hide .splash-glow {
+  animation: glowBloom 1.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes glowBloom {
+  0%   { opacity: 0;    transform: scale(0.35); }
+  32%  { opacity: 0.9;  transform: scale(0.95); }
+  65%  { opacity: 0.5;  transform: scale(1.4); }
+  100% { opacity: 0;    transform: scale(2); }
+}
+
 /* Puertas dobles: se acercan (zoom) juntas y luego se abren hacia fuera sobre su bisagra */
 .splash-doors {
   position: absolute;
   inset: -30px;
+  z-index: 1;
   display: flex;
-  perspective: 1800px;
+  perspective: 2000px;
   will-change: transform;
 }
 
@@ -133,7 +159,7 @@ section h2 { font-size: clamp(1.8rem, 3.2vw, 2.6rem); margin-bottom: 18px; }
   overflow: hidden;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
-  transition: transform 0.95s cubic-bezier(0.65, 0, 0.35, 1), box-shadow 0.95s ease;
+  transition: transform 1.9s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 1.9s ease;
 }
 
 .door-left { transform-origin: left center; }
@@ -146,6 +172,7 @@ section h2 { font-size: clamp(1.8rem, 3.2vw, 2.6rem); margin-bottom: 18px; }
   width: 200%;
   background-size: cover;
   background-position: center;
+  transition: filter 1.9s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .door-left .door-img { left: 0; }
@@ -164,25 +191,29 @@ section h2 { font-size: clamp(1.8rem, 3.2vw, 2.6rem); margin-bottom: 18px; }
 .door-right::after { left: 0; }
 
 .splash-doors.doors-open .door-left {
-  transform: rotateY(-108deg);
-  box-shadow: 40px 0 60px rgba(0, 0, 0, 0.5);
+  transform: rotateY(-112deg);
+  box-shadow: 50px 0 80px rgba(20, 13, 6, 0.4);
 }
 .splash-doors.doors-open .door-right {
-  transform: rotateY(108deg);
-  box-shadow: -40px 0 60px rgba(0, 0, 0, 0.5);
+  transform: rotateY(112deg);
+  box-shadow: -50px 0 80px rgba(20, 13, 6, 0.4);
+}
+.splash-doors.doors-open .door-img {
+  filter: brightness(1.12) saturate(1.05);
 }
 
 .splash-overlay {
   position: absolute;
   inset: 0;
+  z-index: 2;
   background:
     linear-gradient(180deg, rgba(13, 27, 38, 0.55) 0%, rgba(13, 27, 38, 0.72) 60%, rgba(13, 27, 38, 0.88) 100%);
-  transition: opacity 0.4s ease;
+  transition: opacity 1s ease;
 }
 
 .splash-content {
   position: relative;
-  z-index: 2;
+  z-index: 3;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -192,7 +223,7 @@ section h2 { font-size: clamp(1.8rem, 3.2vw, 2.6rem); margin-bottom: 18px; }
   color: #fff;
   padding: 0 24px;
   will-change: transform;
-  transition: opacity 0.4s ease;
+  transition: opacity 0.8s ease;
 }
 
 .splash-eyebrow {
@@ -239,6 +270,20 @@ section h2 { font-size: clamp(1.8rem, 3.2vw, 2.6rem); margin-bottom: 18px; }
 #splash.splash-hide .splash-overlay,
 #splash.splash-hide .splash-content {
   opacity: 0;
+}
+
+/* La página se acomoda suavemente al entrar, como al llegar a una sala */
+#top {
+  transform-origin: center top;
+}
+
+body.entering #top {
+  animation: mainSettle 2.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes mainSettle {
+  from { transform: scale(1.04); }
+  to   { transform: scale(1); }
 }
 
 /* ===================================================== */
@@ -732,6 +777,7 @@ section h2 { font-size: clamp(1.8rem, 3.2vw, 2.6rem); margin-bottom: 18px; }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .door, .splash-content, .splash-overlay, .reveal { transition: none !important; animation: none !important; }
+  .door, .door-img, .splash-content, .splash-overlay, .splash-glow, #top, .reveal { transition: none !important; animation: none !important; }
   .reveal { opacity: 1; transform: none; }
+  #top { transform: none !important; }
 }
