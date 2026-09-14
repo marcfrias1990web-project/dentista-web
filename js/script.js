@@ -3,16 +3,15 @@
 // ===================================================================
 (function () {
   const splash = document.getElementById("splash");
-  const parallax = document.getElementById("splashParallax");
-  const img = parallax.querySelector(".splash-img");
+  const doors = document.getElementById("splashDoors");
   const content = document.querySelector(".splash-content");
   const isTouch = window.matchMedia("(pointer: coarse)").matches;
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  const AUTO_HIDE_MS = 3400;   // tiempo hasta la transición automática
-  const ZOOM_DURATION = 3400;  // duración del avance hacia la entrada
-  const ZOOM_TARGET = isTouch ? 1.18 : 1.4;   // cuánto se acerca la foto (menos en móvil)
-  const PUNCH_SCALE = isTouch ? 1.35 : 1.85;  // empujón final al "cruzar la puerta"
+  const AUTO_HIDE_MS = 3400;    // tiempo hasta la transición automática
+  const ZOOM_DURATION = 3400;   // duración del avance hacia la puerta
+  const ZOOM_TARGET = isTouch ? 1.16 : 1.35;  // cuánto se acerca la foto (menos en móvil)
+  const DOOR_OPEN_MS = 950;     // duración del giro de apertura de las puertas
 
   let hidden = false;
   let rafId = null;
@@ -33,7 +32,7 @@
     return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
   }
 
-  // Avance continuo hacia la entrada: la foto se acerca poco a poco (efecto "caminar hacia la puerta")
+  // Avance continuo hacia la entrada: ambas hojas de la puerta se acercan juntas, como una sola foto
   function raf(now) {
     const elapsed = now - startTime;
     const t = Math.min(elapsed / ZOOM_DURATION, 1);
@@ -44,7 +43,7 @@
       currentY += (targetY - currentY) * 0.06;
     }
 
-    img.style.transform = `scale(${scale}) translate(${currentX * -24}px, ${currentY * -16}px)`;
+    doors.style.transform = `scale(${scale}) translate(${currentX * -24}px, ${currentY * -16}px)`;
     content.style.transform = `translate(${currentX * -10}px, ${currentY * -8}px)`;
 
     if (!hidden) rafId = requestAnimationFrame(raf);
@@ -57,14 +56,15 @@
     clearTimeout(autoTimer);
     if (rafId) cancelAnimationFrame(rafId);
 
-    // Empujón final: cruzar el umbral de la puerta con un zoom rápido + luz, y disolver hacia la página principal
-    img.style.transition = "transform 0.65s cubic-bezier(.4,0,.2,1), filter 0.65s ease";
-    img.style.transform = `scale(${PUNCH_SCALE})`;
-    img.style.filter = "brightness(1.3)";
-
-    splash.classList.add("splash-hide");
+    splash.style.pointerEvents = "none";
+    splash.classList.add("splash-hide");   // funde el texto y el velo oscuro
+    doors.classList.add("doors-open");     // las dos hojas giran sobre su bisagra y se abren
     document.body.style.overflow = "";
-    setTimeout(() => splash.remove(), 750);
+
+    // Avisa al resto de la página para que se revele mientras las puertas terminan de abrirse
+    window.dispatchEvent(new CustomEvent("splash:done"));
+
+    setTimeout(() => splash.remove(), reduceMotion ? 50 : DOOR_OPEN_MS + 80);
   }
 
   // Saltar intro con click o cualquier tecla
@@ -108,9 +108,23 @@
 
   gsap.registerPlugin(ScrollTrigger);
 
+  // El Hero se revela en cuanto las puertas de la intro terminan de abrirse, no al hacer scroll
+  function revealHero() {
+    const els = gsap.utils.toArray(".hero-copy .reveal, .hero-visual.reveal");
+    if (!els.length) return;
+    gsap.to(els, {
+      opacity: 1,
+      y: 0,
+      duration: 0.9,
+      ease: "power3.out",
+      stagger: 0.1,
+    });
+  }
+  window.addEventListener("splash:done", revealHero, { once: true });
+  // Si la intro ya no existe (JS desactivado en ella, o recarga con #), revela igualmente
+  if (!document.getElementById("splash")) revealHero();
+
   const groups = [
-    ".hero-copy .reveal",
-    ".hero-visual.reveal",
     ".services-grid .service-card",
     ".about-visual.reveal, .about-copy .reveal",
     ".testimonials-grid .testimonial-card",
