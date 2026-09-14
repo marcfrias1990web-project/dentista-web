@@ -56,7 +56,7 @@ a { color: inherit; text-decoration: none; }
 
 .section-sub {
   max-width: 560px;
-  margin: 0 auto 56px;
+  margin: 0 auto 36px;
   color: var(--text-muted);
   font-size: 1.05rem;
 }
@@ -378,7 +378,7 @@ body.entering #top {
 /* ===================================================== */
 
 .hero {
-  padding: 176px 0 120px;
+  padding: 148px 0 64px;
   background: linear-gradient(180deg, #ffffff 0%, var(--bg-alt) 100%);
 }
 
@@ -469,7 +469,7 @@ body.entering #top {
 /* SERVICIOS                                                */
 /* ===================================================== */
 
-.services { padding: 120px 0; }
+.services { padding: 64px 0; }
 
 .services-grid {
   display: grid;
@@ -483,13 +483,16 @@ body.entering #top {
   padding: 36px 28px;
   transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
   border: 1px solid transparent;
+  cursor: pointer;
 }
 
-.service-card:hover {
+.service-card:hover,
+.service-card:focus-visible {
   transform: translateY(-8px);
   background: #fff;
   border-color: #e4eef7;
   box-shadow: var(--glow-turquoise);
+  outline: none;
 }
 
 .service-icon {
@@ -507,16 +510,206 @@ body.entering #top {
 
 .service-icon svg { width: 28px; height: 28px; }
 
-.service-card:hover .service-icon { transform: scale(1.08) rotate(-4deg); }
+.service-card:hover .service-icon,
+.service-card:focus-visible .service-icon { transform: scale(1.08) rotate(-4deg); }
 
 .service-card h3 { font-size: 1.15rem; margin-bottom: 10px; }
 .service-card p { color: var(--text-muted); font-size: 0.95rem; }
+
+.service-more {
+  display: inline-block;
+  margin-top: 16px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--accent);
+  opacity: 0;
+  transform: translateX(-6px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.service-card:hover .service-more,
+.service-card:focus-visible .service-more {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* ---------- Modal de servicio con fondo de agua ---------- */
+
+.service-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.service-modal.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.service-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(11, 20, 30, 0.55);
+  backdrop-filter: blur(4px);
+}
+
+.service-modal-panel {
+  position: relative;
+  width: 100%;
+  max-width: 560px;
+  max-height: 85vh;
+  overflow-y: auto;
+  background: #fff;
+  border-radius: 28px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+  transform: translateY(28px) scale(0.96);
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.service-modal.open .service-modal-panel {
+  transform: translateY(0) scale(1);
+}
+
+.water-bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  z-index: 0;
+  border-radius: 28px;
+}
+
+.water-bg span {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(46px);
+  opacity: 0.45;
+}
+
+.water-bg span:nth-child(1) {
+  width: 300px; height: 300px;
+  background: var(--accent);
+  top: -100px; left: -80px;
+  animation: waterDrift1 10s ease-in-out infinite;
+}
+.water-bg span:nth-child(2) {
+  width: 240px; height: 240px;
+  background: var(--turquoise);
+  bottom: -80px; right: -60px;
+  animation: waterDrift2 12s ease-in-out infinite;
+}
+.water-bg span:nth-child(3) {
+  width: 180px; height: 180px;
+  background: #bfe6ff;
+  top: 45%; left: 60%;
+  animation: waterDrift3 14s ease-in-out infinite;
+}
+.water-bg span:nth-child(4) {
+  width: 150px; height: 150px;
+  background: var(--accent);
+  bottom: 20%; left: -40px;
+  animation: waterDrift1 9s ease-in-out infinite reverse;
+}
+
+@keyframes waterDrift1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(40px, 50px) scale(1.1); }
+}
+@keyframes waterDrift2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-35px, -30px) scale(1.15); }
+}
+@keyframes waterDrift3 {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  50% { transform: translate(-60%, -40%) scale(1.2); }
+}
+
+.service-modal-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 2;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(6px);
+  font-size: 1.4rem;
+  line-height: 1;
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.service-modal-close:hover {
+  background: #fff;
+  transform: scale(1.08);
+}
+
+.service-modal-content {
+  position: relative;
+  z-index: 1;
+  padding: 52px 40px 40px;
+}
+
+.service-modal-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(74, 159, 216, 0.15), rgba(23, 200, 218, 0.15));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  margin-bottom: 20px;
+}
+
+.service-modal-icon svg { width: 30px; height: 30px; }
+
+.service-modal-content h3 {
+  font-size: 1.5rem;
+  margin-bottom: 14px;
+}
+
+.service-modal-content > p {
+  color: var(--text-muted);
+  margin-bottom: 22px;
+}
+
+.service-modal-list {
+  list-style: none;
+  margin-bottom: 30px;
+}
+
+.service-modal-list li {
+  position: relative;
+  padding-left: 26px;
+  margin-bottom: 12px;
+  font-size: 0.95rem;
+  color: var(--text);
+}
+
+.service-modal-list li::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 6px;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--turquoise));
+}
 
 /* ===================================================== */
 /* SOBRE NOSOTROS                                           */
 /* ===================================================== */
 
-.about { padding: 100px 0; background: var(--bg-alt); }
+.about { padding: 64px 0; background: var(--bg-alt); }
 
 .about-inner {
   display: grid;
@@ -558,13 +751,13 @@ body.entering #top {
 /* TESTIMONIOS                                              */
 /* ===================================================== */
 
-.testimonials { padding: 120px 0; }
+.testimonials { padding: 64px 0; }
 
 .testimonials-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 28px;
-  margin-top: 56px;
+  margin-top: 36px;
 }
 
 .testimonial-card {
@@ -612,7 +805,7 @@ body.entering #top {
 /* CONTACTO                                                 */
 /* ===================================================== */
 
-.contact { padding: 120px 0; background: var(--bg-alt); }
+.contact { padding: 64px 0 72px; background: var(--bg-alt); }
 
 .contact-inner {
   display: grid;
@@ -759,17 +952,20 @@ body.entering #top {
   .nav-toggle { display: flex; }
   .header-inner .btn-small { display: none; }
 
-  .hero { padding: 132px 0 80px; }
+  .hero { padding: 120px 0 48px; }
   .hero-card--main img { height: 320px; }
   .hero-card--float { left: 12px; bottom: -24px; }
   .hero-stats { flex-wrap: wrap; gap: 24px; }
 
-  .services, .about, .testimonials, .contact { padding: 72px 0; }
+  .services, .about, .testimonials, .contact { padding: 48px 0; }
   .services-grid { grid-template-columns: 1fr; }
 
   .form-row { flex-direction: column; }
 
   .footer-inner { grid-template-columns: 1fr; text-align: left; }
+
+  .service-modal-content { padding: 44px 24px 28px; }
+  .service-modal-panel { border-radius: 22px; }
 
   /* Simplificar 3D/parallax en móvil para mantener rendimiento */
   .hero-card--main { transform: none; }
@@ -777,7 +973,7 @@ body.entering #top {
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .door, .door-img, .splash-content, .splash-overlay, .splash-glow, #top, .reveal { transition: none !important; animation: none !important; }
+  .door, .door-img, .splash-content, .splash-overlay, .splash-glow, #top, .reveal, .water-bg span { transition: none !important; animation: none !important; }
   .reveal { opacity: 1; transform: none; }
   #top { transform: none !important; }
 }

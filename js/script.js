@@ -153,6 +153,107 @@
 })();
 
 // ===================================================================
+// MODAL DE SERVICIO
+// ===================================================================
+(function () {
+  const modal = document.getElementById("serviceModal");
+  if (!modal) return;
+
+  const titleEl = document.getElementById("serviceModalTitle");
+  const descEl = document.getElementById("serviceModalDesc");
+  const listEl = document.getElementById("serviceModalList");
+  const iconEl = document.getElementById("serviceModalIcon");
+  const cards = document.querySelectorAll(".service-card[data-service]");
+
+  const SERVICES = {
+    blanqueamiento: {
+      title: "Blanqueamiento dental",
+      desc: "Un tratamiento seguro e indoloro que aclara el color natural de tus dientes, eliminando las manchas acumuladas por café, té, tabaco o el paso del tiempo.",
+      points: [
+        "Aclara hasta 6 tonos en una única sesión de 45 minutos",
+        "Técnica LED de baja sensibilidad, apta para dientes sensibles",
+        "Revisión previa para descartar caries u otras afecciones",
+        "Resultados duraderos con el mantenimiento adecuado",
+      ],
+    },
+    ortodoncia: {
+      title: "Ortodoncia",
+      desc: "Corregimos la posición de tus dientes y tu mordida con la técnica que mejor se adapte a tu caso: desde brackets tradicionales hasta alineadores prácticamente invisibles.",
+      points: [
+        "Brackets metálicos, estéticos o alineadores transparentes",
+        "Estudio digital en 3D antes de empezar el tratamiento",
+        "Revisiones mensuales para ajustar el plan a tu evolución",
+        "Planes de financiación adaptados a la duración del tratamiento",
+      ],
+    },
+    implantes: {
+      title: "Implantes dentales",
+      desc: "Sustituimos piezas dentales perdidas por implantes de titanio biocompatibles, devolviendo la función y la estética de tu sonrisa de forma definitiva.",
+      points: [
+        "Materiales biocompatibles de alta durabilidad",
+        "Planificación guiada por escáner 3D de baja radiación",
+        "Anestesia local con protocolo de máximo confort",
+        "Seguimiento post-operatorio incluido durante el primer año",
+      ],
+    },
+    revisiones: {
+      title: "Revisiones periódicas",
+      desc: "Un chequeo completo para detectar a tiempo caries, problemas de encías o desgaste, y mantener tu boca sana durante todo el año.",
+      points: [
+        "Exploración completa y limpieza profesional",
+        "Diagnóstico digital con fotografías intraorales",
+        "Recomendaciones personalizadas de higiene diaria",
+        "Recordatorio automático para tu próxima revisión",
+      ],
+    },
+  };
+
+  let lastFocused = null;
+
+  function openService(card) {
+    const data = SERVICES[card.dataset.service];
+    if (!data) return;
+
+    titleEl.textContent = data.title;
+    descEl.textContent = data.desc;
+    listEl.innerHTML = data.points.map((point) => `<li>${point}</li>`).join("");
+    const icon = card.querySelector(".service-icon");
+    iconEl.innerHTML = icon ? icon.innerHTML : "";
+
+    lastFocused = document.activeElement;
+    modal.classList.add("open");
+    modal.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
+    modal.querySelector(".service-modal-close").focus();
+  }
+
+  function closeService() {
+    modal.classList.remove("open");
+    modal.setAttribute("aria-hidden", "true");
+    document.body.style.overflow = "";
+    if (lastFocused) lastFocused.focus();
+  }
+
+  cards.forEach((card) => {
+    card.addEventListener("click", () => openService(card));
+    card.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        openService(card);
+      }
+    });
+  });
+
+  modal.querySelectorAll("[data-close]").forEach((el) =>
+    el.addEventListener("click", closeService)
+  );
+
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeService();
+  });
+})();
+
+// ===================================================================
 // FORMULARIO DE CONTACTO (demo, sin backend)
 // ===================================================================
 (function () {
