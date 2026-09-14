@@ -686,8 +686,6 @@ section h2 { font-size: clamp(1.8rem, 3.2vw, 2.6rem); margin-bottom: 18px; }
   .footer-inner { grid-template-columns: 1fr; text-align: left; }
 
   /* Simplificar 3D/parallax en móvil para mantener rendimiento */
-  .splash-img { transform: scale(1.05) !important; transition: none !important; }
-  .splash-content { transform: none !important; }
   .hero-card--main { transform: none; }
 }
 

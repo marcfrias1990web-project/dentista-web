@@ -4,55 +4,75 @@
 (function () {
   const splash = document.getElementById("splash");
   const parallax = document.getElementById("splashParallax");
+  const img = parallax.querySelector(".splash-img");
   const content = document.querySelector(".splash-content");
   const isTouch = window.matchMedia("(pointer: coarse)").matches;
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+  const AUTO_HIDE_MS = 3400;   // tiempo hasta la transición automática
+  const ZOOM_DURATION = 3400;  // duración del avance hacia la entrada
+  const ZOOM_TARGET = isTouch ? 1.18 : 1.4;   // cuánto se acerca la foto (menos en móvil)
+  const PUNCH_SCALE = isTouch ? 1.35 : 1.85;  // empujón final al "cruzar la puerta"
+
   let hidden = false;
-  let autoTimer = null;
+  let rafId = null;
+  let targetX = 0, targetY = 0, currentX = 0, currentY = 0;
+  const startTime = performance.now();
+
+  document.body.style.overflow = "hidden";
+
+  // Parallax 3D suave del fondo siguiendo el ratón (desactivado en táctil)
+  if (!isTouch && !reduceMotion) {
+    window.addEventListener("mousemove", (e) => {
+      targetX = e.clientX / window.innerWidth - 0.5;
+      targetY = e.clientY / window.innerHeight - 0.5;
+    });
+  }
+
+  function easeInOutQuad(t) {
+    return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+  }
+
+  // Avance continuo hacia la entrada: la foto se acerca poco a poco (efecto "caminar hacia la puerta")
+  function raf(now) {
+    const elapsed = now - startTime;
+    const t = Math.min(elapsed / ZOOM_DURATION, 1);
+    const scale = reduceMotion ? 1 : 1 + easeInOutQuad(t) * (ZOOM_TARGET - 1);
+
+    if (!isTouch && !reduceMotion) {
+      currentX += (targetX - currentX) * 0.06;
+      currentY += (targetY - currentY) * 0.06;
+    }
+
+    img.style.transform = `scale(${scale}) translate(${currentX * -24}px, ${currentY * -16}px)`;
+    content.style.transform = `translate(${currentX * -10}px, ${currentY * -8}px)`;
+
+    if (!hidden) rafId = requestAnimationFrame(raf);
+  }
+  rafId = requestAnimationFrame(raf);
 
   function hideSplash() {
     if (hidden) return;
     hidden = true;
     clearTimeout(autoTimer);
+    if (rafId) cancelAnimationFrame(rafId);
+
+    // Empujón final: cruzar el umbral de la puerta con un zoom rápido + luz, y disolver hacia la página principal
+    img.style.transition = "transform 0.65s cubic-bezier(.4,0,.2,1), filter 0.65s ease";
+    img.style.transform = `scale(${PUNCH_SCALE})`;
+    img.style.filter = "brightness(1.3)";
+
     splash.classList.add("splash-hide");
     document.body.style.overflow = "";
-    splash.addEventListener("transitionend", () => splash.remove(), { once: true });
-    setTimeout(() => splash.remove(), 800);
-  }
-
-  document.body.style.overflow = "hidden";
-
-  // Parallax 3D suave del fondo siguiendo el ratón (desactivado en táctil/reduced-motion)
-  if (!isTouch && !reduceMotion) {
-    const img = parallax.querySelector(".splash-img");
-    let targetX = 0, targetY = 0, currentX = 0, currentY = 0;
-
-    window.addEventListener("mousemove", (e) => {
-      const nx = e.clientX / window.innerWidth - 0.5;
-      const ny = e.clientY / window.innerHeight - 0.5;
-      targetX = nx;
-      targetY = ny;
-    });
-
-    function raf() {
-      currentX += (targetX - currentX) * 0.06;
-      currentY += (targetY - currentY) * 0.06;
-
-      img.style.transform = `scale(1.15) translate(${currentX * -30}px, ${currentY * -20}px)`;
-      content.style.transform = `translate(${currentX * -10}px, ${currentY * -8}px)`;
-
-      if (!hidden) requestAnimationFrame(raf);
-    }
-    requestAnimationFrame(raf);
+    setTimeout(() => splash.remove(), 750);
   }
 
   // Saltar intro con click o cualquier tecla
   splash.addEventListener("click", hideSplash);
   window.addEventListener("keydown", hideSplash, { once: true });
 
-  // Transición automática tras 3s
-  autoTimer = setTimeout(hideSplash, 3000);
+  // Transición automática
+  const autoTimer = setTimeout(hideSplash, AUTO_HIDE_MS);
 })();
 
 // ===================================================================
