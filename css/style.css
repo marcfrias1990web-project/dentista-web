@@ -115,7 +115,6 @@ section h2 { font-size: clamp(1.8rem, 3.2vw, 2.6rem); margin-bottom: 18px; }
   z-index: 999;
   overflow: hidden;
   cursor: pointer;
-  background: #0d1b26;
 }
 
 /* Puertas dobles: se acercan (zoom) juntas y luego se abren hacia fuera sobre su bisagra */
@@ -132,6 +131,8 @@ section h2 { font-size: clamp(1.8rem, 3.2vw, 2.6rem); margin-bottom: 18px; }
   width: 50%;
   height: 100%;
   overflow: hidden;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
   transition: transform 0.95s cubic-bezier(0.65, 0, 0.35, 1), box-shadow 0.95s ease;
 }
 
